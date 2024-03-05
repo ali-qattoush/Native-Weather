@@ -1,12 +1,13 @@
-import 'react-native-gesture-handler';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import MyDrawer from "./drawer/Drawer"
+import { createStackNavigator } from '@react-navigation/stack';
+import 'react-native-dotenv';
 import auth from '@react-native-firebase/auth';
-import { useState, useEffect } from 'react';
+import MyDrawer from './drawer/Drawer';
+import SignUpForm from './views/signup';
+import Login from './views/login';
 
-
-
-import { StyleSheet } from 'react-native';
+const Stack = createStackNavigator();
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -16,25 +17,25 @@ const App = () => {
       setUser(user);
     });
 
- 
+  
+
     return unsubscribe;
-  }, []);
+  });
+
+ 
 
   return (
     <NavigationContainer>
-       <MyDrawer />
+      {user ? (
+        <MyDrawer userInfo={user}/>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+          <Stack.Screen name="SignUpForm" component={SignUpForm} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    width: "100%"
-  }
-});
 
 export default App;

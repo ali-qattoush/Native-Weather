@@ -1,25 +1,17 @@
 import React from "react";
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Formik } from "formik";
 import * as yup from "yup";
 import auth from "@react-native-firebase/auth";
 
-
-
-function Login({navigation}) {
-  const [initializing, setInitializing] = useState(true);
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber;
-  }, []);
-
-  function onAuthStateChanged() {
-    if (initializing) setInitializing(false);
-  }
-
-  const signUpSchema = yup.object().shape({
+const Login = ({ navigation }) => {
+  const signInSchema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
     password: yup
       .string()
@@ -27,83 +19,101 @@ function Login({navigation}) {
       .required("Password is required"),
   });
 
-  const handleSignUp = async (values) => {
+  const handleSignIn = async (values) => {
     try {
-      const userCredential = await auth().signInWithEmailAndPassword(
-        values.email,
-        values.password
-      );
-
-      console.log("User Logged in:", userCredential.user);
+      await auth().signInWithEmailAndPassword(values.email, values.password);
+      console.log("User Logged in");
     } catch (error) {
       console.error("Error Logging in:", error.message);
     }
   };
 
-  if (initializing) return null;
-
   return (
-    <Formik
-      initialValues={{ email: "", password: "" }}
-      validationSchema={signUpSchema}
-      onSubmit={handleSignUp}
-    >
-      {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
-        <View style={styles.container}>
-          <TextInput
-            style={styles.input}
-            onChangeText={handleChange("email")}
-            onBlur={handleBlur("email")}
-            value={values.email}
-            placeholder="Email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          {errors.email && <Text style={styles.error}>{errors.email}</Text>}
+    <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Text style={styles.logoText}>Native Weather</Text>
+      </View>
+      <View style={styles.formContainer}>
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          validationSchema={signInSchema}
+          onSubmit={handleSignIn}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+          }) => (
+            <View>
+              <TextInput
+                style={styles.input}
+                onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
+                value={values.email}
+                placeholder="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              {errors.email && touched.email && (
+                <Text style={styles.error}>{errors.email}</Text>
+              )}
 
-          <TextInput
-            style={styles.input}
-            onChangeText={handleChange("password")}
-            onBlur={handleBlur("password")}
-            value={values.password}
-            placeholder="Password"
-            secureTextEntry
-          />
-          {errors.password && (
-            <Text style={styles.error}>{errors.password}</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={handleChange("password")}
+                onBlur={handleBlur("password")}
+                value={values.password}
+                placeholder="Password"
+                secureTextEntry
+              />
+              {errors.password && touched.password && (
+                <Text style={styles.error}>{errors.password}</Text>
+              )}
+
+              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                <Text style={styles.buttonText}>Sign In</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate("SignUpForm")}
+              >
+                <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
+              </TouchableOpacity>
+            </View>
           )}
-
-          <Button
-            style={styles.button}
-            onPress={handleSubmit}
-            title="Sign Up"
-          />
-
-          <TouchableOpacity onPress={() => navigation.navigate("SignUpForm")}>
-            <Text >Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </Formik>
+        </Formik>
+      </View>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
-    borderWidth: 2,
-    width: "100%",
+  },
+  logoContainer: {
+    marginBottom: 50,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  formContainer: {
+    width: "80%",
   },
   input: {
-    width: "100%",
     height: 40,
-    borderColor: "gray",
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    marginBottom: 20, // Add marginBottom to create space between input fields
+    marginBottom: 20,
     paddingHorizontal: 10,
   },
   error: {
@@ -111,7 +121,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    borderWidth: 20, // Add marginTop to create space between the inputs and the button
+    backgroundColor: "#521be3",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  signupText: {
+    marginTop: 20,
+    color: "#521be3",
+    textAlign: "center",
   },
 });
 

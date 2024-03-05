@@ -1,29 +1,34 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Home from "../views/home";
-import SignUpForm from "../views/signup";
-import Login from "../views/login";
+import Logout from "../utility/logout";
+import UserProfile from "../views/userProfile";
 
 const Drawer = createDrawerNavigator();
 
-function MyDrawer() {
+function MyDrawer({ userInfo }) {
+  const serializedUserInfo = {
+    email: userInfo.email,
+  };
 
   return (
-    <Drawer.Navigator initialRouteName={"Login"}>
+    <Drawer.Navigator initialRouteName="Home">
       <Drawer.Screen
         name="Home"
         component={Home}
         options={{ drawerLabel: "Home" }}
       />
       <Drawer.Screen
-        name="SignUpForm"
-        component={SignUpForm}
+        name="User"
+        component={UserProfile}
+        initialParams={{ userInfo: serializedUserInfo }}
+        options={{ drawerLabel: "User Profile" }}
       />
-       <Drawer.Screen
-        name="Login"
-        component={Login}
+      <Drawer.Screen
+        name="Logout"
+        component={Logout}
+        options={{ drawerLabel: "Logout" }}
       />
-    
     </Drawer.Navigator>
   );
 }
